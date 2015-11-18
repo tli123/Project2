@@ -1,22 +1,18 @@
 public abstract class Account {
 
-    private static final double MIN_BALANCE;
-    private static final double INTEREST_RATE;
+    private static final double MIN_BALANCE = 0;
+    private static final double INTEREST_RATE = 0;
 
     private int account_id;
     private int pin;
     private double balance;
+    private boolean penalty_p;
 
     public Account(int account_id, int pin, int balance) {
 	setID(account_id);
 	setPin(pin);
 	setBalance(balance);
-    }
-
-    public synchronized void withdraw(double amount){
-    }
-
-    public synchronized void desposit(double amount){
+	if(balance < MIN_BALANCE) penalty_p = true;
     }
 
     public int getPin() {
@@ -31,7 +27,33 @@ public abstract class Account {
 	return balance;
     }
 
-    public synchronized void modBalance(double amount) {
+    public synchronized void withdraw(double amount){
+	modBalance(-1*amount);
     }
 
+    public synchronized void desposit(double amount){
+	modBalance(amount);
+    }
+
+    private double calcPenalty() {
+	return 0;
+    }
+
+    public synchronized void applyMonthly(){
+	double total_extra = balance*INTEREST_RATE;
+	if (penalty_p) total_extra += calcPenalty();
+	modBalance(total_extra);
+    }
+
+    public synchronized void modBalance(double amount) throws NegativeBalanceException {
+	double new_balance = balance + amount;
+	if(new_balance < 0) throw new NegativeBalanceException();
+	if(new_balance < MIN_BALANCE) penalty_p = true;
+	else penalty_p = false;
+	balance = new_balance;
+    }
+
+    public String toString() {
+	return String.format("%d %d %d\n", account_id, pin, balance);
+    }
 }
