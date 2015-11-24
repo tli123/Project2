@@ -52,12 +52,16 @@ public class Bank extends Observable {
 	    double newBal = Double.parseDouble(accountData[3]);
 		
 	    Account acc = null;
-	    if (accountData[0].equals("c")) {
+	    switch(accountData[0]) {
+	    case "c":
 		acc = new CDAccount(newId, newPin, newBal);
-	    } else if (accountData[0].equals("s")) {
+		break;
+	    case "s":
 		acc = new SavingAccount(newId, newPin, newBal);	
-	    } else if (accountData[0].equals("x")) {
+		break;
+	    case "x":
 		acc = new CheckingAccount(newId, newPin, newBal);
+		break;
 	    }
 	    accounts.put(newId, acc);
 	}
@@ -89,17 +93,22 @@ public class Bank extends Observable {
 	while (sc.hasNext()) {
 	    String command = sc.next();
 	    String[] commandData = command.split(" ");
-	    switch(commandData[0]){
+	    switch(commandData[0]) {
 	    case "o":
 		s+=open(commandData[1], Integer.parseInt(commandData[2]), Integer.parseInt(commandData[3]), Double.parseDouble(commandData[4]));
+		break;
 	    case "c":
 		s+=close(Integer.parseInt(commandData[1]));
+		break;
 	    case "w":
 		s+=withdraw(Integer.parseInt(commandData[1]), Double.parseDouble(commandData[2]));
+		break;
 	    case "d":
 		s+=deposit(Integer.parseInt(commandData[1]), Double.parseDouble(commandData[2]));
+		break;
 	    case "a":
 		s+=applyInterest();
+		break;
 	    }
 	}
 	s+= ("==========   Final Bank Data ==================\n\n" + toString() + "===============================================\n");
