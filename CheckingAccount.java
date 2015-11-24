@@ -11,7 +11,11 @@ public class CheckingAccount extends Account {
 	return balance > 5 ? 5 : 0.1 * balance;
     }
 
+    public String formatRecipt() {
+	return String.format("%12s", "Checking") + super();
+    }
+
     public String toString() {
-	return "C " + super();
+	return "c " + super();
     }
 }

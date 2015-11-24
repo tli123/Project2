@@ -10,7 +10,11 @@ public class CDAccount extends Account {
     public synchronized void withdraw(double amount){
     }
 
+    public String formatRecipt() {
+	return String.format("%12s", "CD") + super();
+    }
+
     public String toString() {
-	return "D " + super();
+	return "c " + super();
     }
 }

@@ -7,12 +7,14 @@ public class Account {
     private int pin;
     private double balance;
     private boolean penalty_p;
+    private boolean open_p;
 
     public Account(int account_id, int pin, int balance) {
         this.account_id = account_id;
 	this.pin = pin;
 	this.balance = balance;
 	if(balance < MIN_BALANCE) penalty_p = true;
+	this.open_p = false;
     }
 
     public int getPin() {
@@ -53,7 +55,13 @@ public class Account {
 	balance = new_balance;
     }
 
+    public String formatRecipt() {
+	String.format("    %d    %10s", account_id, String.format("%.2d", balance));
+    }
+
     public String toString() {
 	return String.format("%d %d %d\n", account_id, pin, balance);
     }
+
+    
 }

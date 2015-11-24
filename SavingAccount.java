@@ -11,7 +11,11 @@ public class SavingAccount extends Account {
 	return balance > 10 ? 10 : 0.1 * balance;
     }
 
+    public String formatRecipt() {
+	return String.format("%12s", "Saving") + super();
+    }
+
     public String toString() {
-	return "S " + super();
+	return "s " + super();
     }
 }
