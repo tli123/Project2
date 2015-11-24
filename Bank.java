@@ -56,26 +56,48 @@ public class Bank extends Observable {
 	}
     }
 
+    private String formatOCStatus(int d, String c, String a, double bal) {
+	String meth = (c.equals("o")) ? "Open:" : "Closed:";
+	if (c.equals("c")) a = " ";
+        return String.format("%d    %s   %s   %s: Success   $%-10s\n", d, c, a, meth, String.format("%.2d", bal));
+    }
+
+    private String formatOCStatus(int d, String c, String a) {
+	String meth = (c.equals("o")) ? "Open:" : "Closed:";
+	if (c.equals("c")) a = " ";
+        return String.format("%d    %s   %s   %s:Failed\n", d, c, a, meth);
+    }
+
+    private String formatWDStatus(int d, String c, String a, double bal) {
+        return String.format("%d    %s       $    %.2d     $%-10s\n", d, c, a, String.format("%.2d", bal));
+    }
+
+    private String formatWDStatus(int d, String c, String a) {
+	return String.format("%d    %s       $    %.2d     Failed\n", d, c, a);
+    }
+
     public void batchMode(String filename) {
-	System.out.println("==========   Initial Bank Data ==================\n\n" + toString());
+	String s = "==========   Initial Bank Data ==================\n\n" + toString();
+
 	sc = new Scanner(new File(filename));
 	while (sc.hasNext()) {
 	    String command = sc.next();
 	    String[] commandData = command.split(" ");
 	    switch(commandData[0]){
 	    case "o":
-		open(commandData[1], Integer.parseInt(commandData[2]), Integer.parseInt(commandData[3]), Integer.parseInt(commandData[2]));
+		s+=open(commandData[1], Integer.parseInt(commandData[2]), Integer.parseInt(commandData[3]), Double.parseDouble(commandData[4]));
 	    case "c":
-		close(Integer.parseInt(commandData[1]));
+		s+=close(Integer.parseInt(commandData[1]));
 	    case "w":
-		withdraw(Integer.parseInt(commandData[1]), Integer.parseInt(commandData[2]));
+		s+=withdraw(Integer.parseInt(commandData[1]), Double.parseDouble(commandData[2]));
 	    case "d":
-		deposit(Integer.parseInt(commandData[1]), Integer.parseInt(commandData[2]));
+		s+=deposit(Integer.parseInt(commandData[1]), Double.parseDouble(commandData[2]));
 	    case "a":
-		applyInterest();
+		s+=applyInterest();
 	    }
 	}
-	System.out.println("==========   Final Bank Data ==================\n\n" + toString());
+	s+= ("==========   Final Bank Data ==================\n\n" + toString() + "===============================================\n");
+	System.out.println(s);
     }
 
     private boolean contains(int id) {
@@ -87,84 +109,83 @@ public class Bank extends Observable {
 	return false;
     }
 
-    public boolean open(String type, int id, int pin, int balance) {
+    public String open(String type, int id, int pin, double balance) {
+
 	if (!contains(id)) {
-	    Account acc = null;
-	    switch(type) {
-	    case "x":
-		if (balance < 0) {
-		    return false;
+	    try {
+		Account acc = null;
+		switch(type) {
+		case "x":
+		    acc = new CheckingAccount(id, pin, balance);
+		case "s":
+		    acc = new SavingAccount(id, pin, balance);
+		case "c":
+		    acc = new CDAccount(id, pin, balance);
 		}
-                acc = new CheckingAccount(id, pin, balance);
-            case "s":
-		if (balance < 0) {
-		    return false;
-		}
-		acc = new SavingAccount(id, pin, balance);
-	    case "c":
-		if (balance < 500) {
-		    return false;
-		}
-		acc = new CDAccount(id, pin, balance);
+		acc.setOpen(true);
+		account.add(acc);
+		formatOCStatus(pin, "o", type, bal);
+	    } catch (NegativeBalanceException e) {
+		return formatOCStatus(pin, "o", type);
 	    }
-	    acc.setOpen(true);
-	    account.add(acc);
-	} else {
-	    return false;
+	}		
+	else {
+	    return formatOCStatus(pin, "o", type);
 	}
     }
 
-    public boolean close(int id) {
+    public String close(int id) {
 	if (!contains(id)) {
-	    return false;
+	    return formatOCStatus(pin, "c", "");
 	} else {
 	    for (Account acc : accounts) {
 		if (acc.getID() == id) {
 		    acc.setOpen(false);
-		    return true;
+		    return formatOCStatus(pin, "c", type, acc.getBalance());
 		}
 	    }
 	}
-	return false;
+        return formatOCStatus(pin, "c", "");
     }
 
-    public boolean deposit(int id, int amount) {
+    public String deposit(int id, double amount) {
 	if (contains(id)) {
 	    for (Account acc : accounts) {
 		if (acc.getID() == id) {
 		    if (acc.getOpen()) {
-			acc.modBalance(amount);
-			return true;
+			acc.deposit(amount);
+			return formatWDStatus(acc.getPin(), "d", amount, acc.getBalance());
 		    } else {
-			return false;
+			return formatWDStatus(acc.getPin(), "d", amount);
 		    }
 		}
 	    }
 	}
-	return false;
+	return formatWDStatus(acc.getPin(), "d", amount);
     }
 
-    public void withdraw(int id, int amount) {
+    public String withdraw(int id, double amount) {
 	if (contains(id)) {
 	    for (Account acc : accounts) {
 		if (acc.getID() == id) {
 		    if (acc.getOpen()) {
 			acc.withdraw(amount);
-			return true;
+			return formatWDStatus(acc.getPin(), "w", amount, acc.getBalance());
 		    } else {
-			return false;
+			return formatWDStatus(acc.getPin(), "w", amount);
 		    }
 		}
 	    }
 	}
-	return false;
+	return formatWDStatus(acc.getPin(), "w", amount);
     }
 
     public void applyInterest() {
-	
+	String s = "============== Interest Report ==============\nAccount Adjustment      New Balance\n------- -----------     -----------\n";
 	for (Account acc : accounts) {
-	    acc.applyMonthly();
+	    String.format("%d    $%10s     $%10s\n", acc.getPin(), acc.applyMonthly(). acc.getBalace());
 	}
+	return s + "=============================================";
     }
 
     public String toString(String type) {
@@ -172,7 +193,7 @@ public class Bank extends Observable {
 	for (Account acc : accounts) {
 	    data += acc.formatReceipt() + "\n";
 	}
-	return data + "===============================================\n";
+	return data;
     }
 
 

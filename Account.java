@@ -17,6 +17,14 @@ public class Account {
 	this.open_p = false;
     }
 
+    public void setOpen(boolean b) {
+	open_p = b;
+    }
+
+    public boolean getOpen() {
+	return open_p;
+    }
+
     public int getPin() {
 	return pin;
     }
@@ -41,10 +49,11 @@ public class Account {
 	return 0;
     }
 
-    public synchronized void applyMonthly(){
+    public synchronized double applyMonthly(){
 	double total_extra = balance*INTEREST_RATE;
 	if (penalty_p) total_extra += calcPenalty();
 	modBalance(total_extra);
+	return total_extra;
     }
 
     public synchronized void modBalance(double amount) throws NegativeBalanceException {
