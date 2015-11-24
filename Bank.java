@@ -20,19 +20,54 @@
  * @author Ye Ziwei
  */
 
-public class Bank {
+import java.util.Observable;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.io.File;
+import java.lang.String;
 
-    private HashTable<int, Account> accounts = new HashTable();
+public class Bank extends Observable {
 
-    private void openData(String filename) {
+    /**
+     * All of the accounts that are in the bank.
+     */
+    private ArrayList<Account> accounts;
+
+    /**
+     * The scanner that reads the bankFile.
+     */
+    private Scanner sc;
+
+    public Bank(String filename) {
+	accounts = new ArrayList<Account>();
+	sc = new Scanner(new File(filename));
+	while (sc.hasNext()) {
+	    String accountInfo = sc.next();
+	    String[] accountData = accountInfo.split(" ");
+	    Account acc = null;
+	    if (accountData[1].equals("c")) {
+		acc = new CDAccount(accountData[0], accountData[2], accountData[3]);
+	    } else if (accountData[1].equals("s")) {
+		acc = new SavingAccount(accountData[0], accountData[2], accountData[3]);
+	    } else if (accountData[1].equals("x")) {
+		acc = new CheckingAccount(accountData[0], accountData[2], accountData[3]);
+	    }
+	    accounts.add(acc);
+	}
     }
 
+
     public static void main(String[] args) {
-	if(args.length < 1) { System.out.println(""); return; }
-	Bank bank = new Bank();
-	bank.openData(args[0]);
-	if(args.length == 2) { bank.runBatch(args[1]); return; }
-	
+	if (args.length < 1 || args.length > 2) {
+	    System.out.println("Usage: java Bank bankFile [batchFile]");
+	    System.exit(0);
+	} 
+        Bank bank = new Bank(args[0]);
+	if (args.length == 1) {
+	    //open gui
+	} else if (args.length == 2) {
+	    //open batchmode
+	}
     }
 
 }

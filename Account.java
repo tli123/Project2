@@ -1,4 +1,4 @@
-public abstract class Account {
+public class Account {
 
     private static final double MIN_BALANCE = 0;
     private static final double INTEREST_RATE = 0;
@@ -9,9 +9,9 @@ public abstract class Account {
     private boolean penalty_p;
 
     public Account(int account_id, int pin, int balance) {
-	setID(account_id);
-	setPin(pin);
-	setBalance(balance);
+        this.account_id = account_id;
+	this.pin = pin;
+	this.balance = balance;
 	if(balance < MIN_BALANCE) penalty_p = true;
     }
 
