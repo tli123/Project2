@@ -1,3 +1,25 @@
+/**
+ * ATMView.java
+ *
+ * Holds the ATM GUI. Communicates with the ATM Model.
+ *
+ * File:
+ *	$Id: ATMView.java,v 1.0 2015/11/xx 00:00:00 csci140 Exp csci140 $
+ *
+ * Revisions:
+ *	$Log: ATMView.java,v $
+ *	Initial revision
+ *
+ */
+
+/**
+ * The ATM GUI View Control.
+ *
+ * @author Tommy Li
+ * @author Ziwei Ye
+ */
+
+
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
