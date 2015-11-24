@@ -8,14 +8,14 @@ public class SavingAccount extends Account {
     }
 
     private double calcPenalty() {
-	return balance > 10 ? 10 : 0.1 * balance;
+	return getBalance() > 10 ? 10 : 0.1 * getBalance();
     }
 
-    public String formatRecipt() {
-	return String.format("%12s", "Saving") + super();
+    public String formatReceipt() {
+	return String.format("%12s", "Saving") + formatReceipt2();
     }
 
     public String toString() {
-	return "s " + super();
+	return "s " + formatFile();
     }
 }

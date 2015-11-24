@@ -25,34 +25,41 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.File;
 import java.lang.String;
+import java.io.FileNotFoundException;
+import java.util.Hashtable;
+import java.util.Enumeration;
 
 public class Bank extends Observable {
 
     /**
      * All of the accounts that are in the bank.
      */
-    private ArrayList<Account> accounts;
+    private Hashtable<Integer,Account> accounts;
 
     /**
      * The scanner that reads the bankFile.
      */
     private Scanner sc;
 
-    public Bank(String filename) {
-	accounts = new ArrayList<Account>();
+    public Bank(String filename) throws NegativeBalanceException, FileNotFoundException {
+	accounts = new Hashtable<Integer, Account>();
 	sc = new Scanner(new File(filename));
 	while (sc.hasNext()) {
 	    String accountInfo = sc.next();
 	    String[] accountData = accountInfo.split(" ");
+	    int newId = Integer.parseInt(accountData[1]);
+	    int newPin = Integer.parseInt(accountData[2]);
+	    double newBal = Double.parseDouble(accountData[3]);
+		
 	    Account acc = null;
 	    if (accountData[0].equals("c")) {
-		acc = new CDAccount(accountData[1], accountData[2], accountData[3]);
+		acc = new CDAccount(newId, newPin, newBal);
 	    } else if (accountData[0].equals("s")) {
-		acc = new SavingAccount(accountData[1], accountData[2], accountData[3]);
+		acc = new SavingAccount(newId, newPin, newBal);	
 	    } else if (accountData[0].equals("x")) {
-		acc = new CheckingAccount(accountData[1], accountData[2], accountData[3]);
+		acc = new CheckingAccount(newId, newPin, newBal);
 	    }
-	    accounts.add(acc);
+	    accounts.put(newId, acc);
 	}
     }
 
@@ -68,17 +75,16 @@ public class Bank extends Observable {
         return String.format("%d    %s   %s   %s:Failed\n", d, c, a, meth);
     }
 
-    private String formatWDStatus(int d, String c, String a, double bal) {
-        return String.format("%d    %s       $    %.2d     $%-10s\n", d, c, a, String.format("%.2d", bal));
+    private String formatWDStatus(int d, String c, double a, double bal) {
+        return String.format("%d    %s       $    %-10s     $%-10s\n", d, c,  String.format("%.2d", a), String.format("%.2d", bal));
     }
 
-    private String formatWDStatus(int d, String c, String a) {
-	return String.format("%d    %s       $    %.2d     Failed\n", d, c, a);
+    private String formatWDStatus(int d, String c, double a) {
+	return String.format("%d    %s       $    %-10s     Failed\n", d, c, String.format("%.2d", a));
     }
 
-    public void batchMode(String filename) {
+    public void batchMode(String filename) throws NegativeBalanceException, FileNotFoundException {
 	String s = "==========   Initial Bank Data ==================\n\n" + toString();
-
 	sc = new Scanner(new File(filename));
 	while (sc.hasNext()) {
 	    String command = sc.next();
@@ -100,104 +106,90 @@ public class Bank extends Observable {
 	System.out.println(s);
     }
 
-    private boolean contains(int id) {
-	for (Account accs : accounts) {
-	    if (accs.getID() == id) {
-		return true;
-	    }
-	}
-	return false;
-    }
-
     public String open(String type, int id, int pin, double balance) {
-
-	if (!contains(id)) {
+	if (!accounts.containsKey(id)) {
 	    try {
-		Account acc = null;
+		Account acc;
 		switch(type) {
 		case "x":
 		    acc = new CheckingAccount(id, pin, balance);
+		    break;
 		case "s":
 		    acc = new SavingAccount(id, pin, balance);
+		    break;
 		case "c":
 		    acc = new CDAccount(id, pin, balance);
+		    break;
+		default:
+		    throw new InvalidAccountTypeException();
 		}
 		acc.setOpen(true);
-		account.add(acc);
-		formatOCStatus(pin, "o", type, bal);
+		accounts.put(id, acc);
+		return formatOCStatus(pin, "o", type, balance);
+	    } catch (InvalidAccountTypeException e) {
+		return formatOCStatus(id, "o", type);
 	    } catch (NegativeBalanceException e) {
-		return formatOCStatus(pin, "o", type);
+		return formatOCStatus(id, "o", type);
 	    }
-	}		
-	else {
-	    return formatOCStatus(pin, "o", type);
 	}
+	return formatOCStatus(id, "o", type, balance);
     }
 
     public String close(int id) {
-	if (!contains(id)) {
-	    return formatOCStatus(pin, "c", "");
-	} else {
-	    for (Account acc : accounts) {
-		if (acc.getID() == id) {
-		    acc.setOpen(false);
-		    return formatOCStatus(pin, "c", type, acc.getBalance());
-		}
+	Account acc = accounts.get(id);
+	if (acc != null) {
+	    if (acc.getOpen()) {
+		acc.setOpen(false);
+		return formatOCStatus(id, "c", "", acc.getBalance());
 	    }
 	}
-        return formatOCStatus(pin, "c", "");
+	return formatOCStatus(id, "c", "");
     }
 
-    public String deposit(int id, double amount) {
-	if (contains(id)) {
-	    for (Account acc : accounts) {
-		if (acc.getID() == id) {
-		    if (acc.getOpen()) {
-			acc.deposit(amount);
-			return formatWDStatus(acc.getPin(), "d", amount, acc.getBalance());
-		    } else {
-			return formatWDStatus(acc.getPin(), "d", amount);
-		    }
-		}
+    public String deposit(int id, double amount) throws NegativeBalanceException {
+	Account acc = accounts.get(id);
+	if (acc != null) {
+	    if (acc.getOpen()) {
+		acc.deposit(amount);
+		return formatWDStatus(id, "d", amount, acc.getBalance());
+	    } 
+	}
+	return formatWDStatus(id, "d", amount);
+    }
+
+    public String withdraw(int id, double amount) throws NegativeBalanceException {
+	Account acc = accounts.get(id);
+	if (acc != null) {
+	    if (acc.getOpen()) {
+		acc.withdraw(amount);
+		return formatWDStatus(id, "w", amount, acc.getBalance());
 	    }
 	}
-	return formatWDStatus(acc.getPin(), "d", amount);
+	return formatWDStatus(id, "w", amount);
     }
 
-    public String withdraw(int id, double amount) {
-	if (contains(id)) {
-	    for (Account acc : accounts) {
-		if (acc.getID() == id) {
-		    if (acc.getOpen()) {
-			acc.withdraw(amount);
-			return formatWDStatus(acc.getPin(), "w", amount, acc.getBalance());
-		    } else {
-			return formatWDStatus(acc.getPin(), "w", amount);
-		    }
-		}
-	    }
-	}
-	return formatWDStatus(acc.getPin(), "w", amount);
-    }
-
-    public void applyInterest() {
+    public String applyInterest() throws NegativeBalanceException {
 	String s = "============== Interest Report ==============\nAccount Adjustment      New Balance\n------- -----------     -----------\n";
-	for (Account acc : accounts) {
-	    String.format("%d    $%10s     $%10s\n", acc.getPin(), acc.applyMonthly(). acc.getBalace());
+        Enumeration<Account> e = accounts.elements();
+	while(e.hasMoreElements()) {
+	    Account acc = e.nextElement();
+	    s += String.format("%d    $%10s     $%10s\n", acc.getID(), acc.applyMonthly(), acc.getBalance());
 	}
-	return s + "=============================================";
+	return s += "=============================================\n\n";
     }
 
-    public String toString(String type) {
-	String data += "Account Type    Account Balance\n------------    ------- -----------\n";
-	for (Account acc : accounts) {
+    public String toString() {
+	String data = "Account Type    Account Balance\n------------    ------- -----------\n";
+        Enumeration<Account> e = accounts.elements();
+	while(e.hasMoreElements()) {
+	    Account acc = e.nextElement();
 	    data += acc.formatReceipt() + "\n";
 	}
 	return data;
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NegativeBalanceException, FileNotFoundException {
 	if (args.length < 1 || args.length > 2) {
 	    System.out.println("Usage: java Bank bankFile [batchFile]");
 	    System.exit(0);
@@ -206,7 +198,7 @@ public class Bank extends Observable {
 	if (args.length == 1) {
 	    //open gui
 	} else if (args.length == 2) {
-	    bank.batchMode();
+	    bank.batchMode(args[1]);
 	}
     }
 
