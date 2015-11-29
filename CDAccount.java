@@ -12,10 +12,10 @@ public class CDAccount extends Account {
     }
 
     public String formatReceipt() {
-	return String.format("%12s", "CD") + formatReceipt2();
+	return String.format("%-12s", "CD") + formatReceipt2();
     }
 
     public String toString() {
-	return "c " + formatFile();
+	return "d " + formatFile();
     }
 }

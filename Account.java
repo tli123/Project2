@@ -17,11 +17,11 @@ public class Account {
 	this.open_p = false;
     }
 
-    public void setOpen(boolean b) {
+    public synchronized void setOpen(boolean b) {
 	open_p = b;
     }
 
-    public boolean getOpen() {
+    public synchronized boolean getOpen() {
 	return open_p;
     }
 
@@ -69,10 +69,10 @@ public class Account {
     }
 
     public String formatReceipt2() {
-	return String.format("    %d    %10s", account_id, String.format("%.2d", balance));
+	return String.format("    %d    $%10s", account_id, String.format("%.2f", balance));
     }
 
     public String formatFile() {
-	return String.format("%d %d %d\n", account_id, pin, balance);
+	return String.format("%d %d %s\n", account_id, pin, String.format("%.2f", balance));
     }
 }

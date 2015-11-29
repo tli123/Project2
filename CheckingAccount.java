@@ -12,7 +12,7 @@ public class CheckingAccount extends Account {
     }
 
     public String formatReceipt() {
-	return String.format("%12s", "Checking") + formatReceipt2();
+	return String.format("%-12s", "Checking") + formatReceipt2();
     }
 
     public String toString() {

@@ -16,8 +16,8 @@
 /**
  * The main bank class.
  *
- * @author Tommy Li
  * @author Ye Ziwei
+ * @author Tommy Li
  */
 
 import java.util.Observable;
@@ -26,8 +26,11 @@ import java.util.Scanner;
 import java.io.File;
 import java.lang.String;
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+import java.io.PrintWriter;
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.Arrays;
 
 public class Bank extends Observable {
 
@@ -40,17 +43,21 @@ public class Bank extends Observable {
      * The scanner that reads the bankFile.
      */
     private Scanner sc;
+    private String filename;
 
     public Bank(String filename) throws NegativeBalanceException, FileNotFoundException {
 	accounts = new Hashtable<Integer, Account>();
+	this.filename = filename;
+
 	sc = new Scanner(new File(filename));
-	while (sc.hasNext()) {
-	    String accountInfo = sc.next();
+	while (sc.hasNextLine()) {
+	    String accountInfo = sc.nextLine();
 	    String[] accountData = accountInfo.split(" ");
+	    System.out.println(Arrays.toString(accountData));
 	    int newId = Integer.parseInt(accountData[1]);
 	    int newPin = Integer.parseInt(accountData[2]);
 	    double newBal = Double.parseDouble(accountData[3]);
-		
+	    
 	    Account acc = null;
 	    switch(accountData[0]) {
 	    case "c":
@@ -70,28 +77,28 @@ public class Bank extends Observable {
     private String formatOCStatus(int d, String c, String a, double bal) {
 	String meth = (c.equals("o")) ? "Open:" : "Closed:";
 	if (c.equals("c")) a = " ";
-        return String.format("%d    %s   %s   %s: Success   $%-10s\n", d, c, a, meth, String.format("%.2d", bal));
+        return String.format("%d    %s   %s   %s Success   $%10s\n", d, c, a, meth, String.format("%.2f", bal));
     }
 
     private String formatOCStatus(int d, String c, String a) {
 	String meth = (c.equals("o")) ? "Open:" : "Closed:";
 	if (c.equals("c")) a = " ";
-        return String.format("%d    %s   %s   %s:Failed\n", d, c, a, meth);
+        return String.format("%d    %s   %s   %s Failed\n", d, c, a, meth);
     }
 
     private String formatWDStatus(int d, String c, double a, double bal) {
-        return String.format("%d    %s       $    %-10s     $%-10s\n", d, c,  String.format("%.2d", a), String.format("%.2d", bal));
+        return String.format("%d    %s       $%10s     $%10s\n", d, c,  String.format("%.2f", a), String.format("%.2f", bal));
     }
 
     private String formatWDStatus(int d, String c, double a) {
-	return String.format("%d    %s       $    %-10s     Failed\n", d, c, String.format("%.2d", a));
+	return String.format("%d    %s       $%10s     Failed\n", d, c, String.format("%.2f", a));
     }
 
     public void batchMode(String filename) throws NegativeBalanceException, FileNotFoundException {
-	String s = "==========   Initial Bank Data ==================\n\n" + toString();
+	String s = "==========   Initial Bank Data ==================\n\n" + toString() +  "\n===============================================\n";
 	sc = new Scanner(new File(filename));
-	while (sc.hasNext()) {
-	    String command = sc.next();
+	while (sc.hasNextLine()) {
+	    String command = sc.nextLine();
 	    String[] commandData = command.split(" ");
 	    switch(commandData[0]) {
 	    case "o":
@@ -111,7 +118,7 @@ public class Bank extends Observable {
 		break;
 	    }
 	}
-	s+= ("==========   Final Bank Data ==================\n\n" + toString() + "===============================================\n");
+	s+= ("\n==========   Final Bank Data ==================\n\n" + toString() + "\n===============================================\n");
 	System.out.println(s);
     }
 
@@ -132,7 +139,6 @@ public class Bank extends Observable {
 		default:
 		    throw new InvalidAccountTypeException();
 		}
-		acc.setOpen(true);
 		accounts.put(id, acc);
 		return formatOCStatus(pin, "o", type, balance);
 	    } catch (InvalidAccountTypeException e) {
@@ -146,8 +152,8 @@ public class Bank extends Observable {
 
     public String close(int id) {
 	Account acc = accounts.get(id);
-	if (acc != null && acc.getOpen()) {
-	    acc.setOpen(false);
+	if (acc != null) {
+	    accounts.remove(id);
 	    return formatOCStatus(id, "c", "", acc.getBalance());
 	}
 	return formatOCStatus(id, "c", "");
@@ -155,7 +161,7 @@ public class Bank extends Observable {
 
     public String deposit(int id, double amount) throws NegativeBalanceException {
 	Account acc = accounts.get(id);
-	if (acc != null && acc.getOpen()) {
+	if (acc != null) {
 		acc.deposit(amount);
 		return formatWDStatus(id, "d", amount, acc.getBalance());
 	}
@@ -164,7 +170,7 @@ public class Bank extends Observable {
 
     public String withdraw(int id, double amount) throws NegativeBalanceException {
 	Account acc = accounts.get(id);
-	if (acc != null && acc.getOpen()) {
+	if (acc != null) {
 	    acc.withdraw(amount);
 	    return formatWDStatus(id, "w", amount, acc.getBalance());
 	}
@@ -191,17 +197,32 @@ public class Bank extends Observable {
 	return data;
     }
 
+    public String formatFile() {
+	String s = "";
+	Enumeration<Account> e = accounts.elements();
+	while(e.hasMoreElements()) {
+	    s += e.nextElement().toString();
+	}
+	return s;
+    }
 
-    public static void main(String[] args) throws NegativeBalanceException, FileNotFoundException {
+    public void write() throws FileNotFoundException, UnsupportedEncodingException {
+	PrintWriter w = new PrintWriter(filename, "UTF-8");
+	w.print(formatFile());
+	w.close();
+    }
+
+    public static void main(String[] args) throws NegativeBalanceException, FileNotFoundException, UnsupportedEncodingException {
 	if (args.length < 1 || args.length > 2) {
 	    System.out.println("Usage: java Bank bankFile [batchFile]");
 	    System.exit(0);
 	} 
         Bank bank = new Bank(args[0]);
 	if (args.length == 1) {
-	    //open gui
+	    bank.write();
 	} else if (args.length == 2) {
 	    bank.batchMode(args[1]);
+	    bank.write();
 	}
     }
 
