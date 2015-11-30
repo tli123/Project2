@@ -44,8 +44,10 @@ public class Bank extends Observable {
      */
     private Scanner sc;
     private String filename;
+    private String string_data;
 
     public Bank(String filename) throws NegativeBalanceException, FileNotFoundException {
+	string_data = "";
 	accounts = new Hashtable<Integer, Account>();
 	this.filename = filename;
 
@@ -60,13 +62,13 @@ public class Bank extends Observable {
 	    
 	    Account acc = null;
 	    switch(accountData[0]) {
-	    case "c":
+	    case "x":
 		acc = new CDAccount(newId, newPin, newBal);
 		break;
 	    case "s":
 		acc = new SavingAccount(newId, newPin, newBal);	
 		break;
-	    case "x":
+	    case "c":
 		acc = new CheckingAccount(newId, newPin, newBal);
 		break;
 	    }
@@ -74,56 +76,58 @@ public class Bank extends Observable {
 	}
     }
 
-    private String formatOCStatus(int d, String c, String a, double bal) {
+    private void formatOCStatus(int d, String c, String a, double bal) {
 	String meth = (c.equals("o")) ? "Open:" : "Closed:";
 	if (c.equals("c")) a = " ";
-        return String.format("%d    %s   %s   %s Success   $%10s\n", d, c, a, meth, String.format("%.2f", bal));
+        string_data += String.format("%d    %s   %s   %s Success   $%10s\n", d, c, a, meth, String.format("%.2f", bal));
     }
 
-    private String formatOCStatus(int d, String c, String a) {
+    private void formatOCStatus(int d, String c, String a) {
 	String meth = (c.equals("o")) ? "Open:" : "Closed:";
 	if (c.equals("c")) a = " ";
-        return String.format("%d    %s   %s   %s Failed\n", d, c, a, meth);
+        string_data += String.format("%d    %s   %s   %s Failed\n", d, c, a, meth);
     }
 
-    private String formatWDStatus(int d, String c, double a, double bal) {
-        return String.format("%d    %s       $%10s     $%10s\n", d, c,  String.format("%.2f", a), String.format("%.2f", bal));
+    private void formatWDStatus(int d, String c, double a, double bal) {
+        string_data += String.format("%d    %s       $%10s     $%10s\n", d, c,  String.format("%.2f", a), String.format("%.2f", bal));
     }
 
-    private String formatWDStatus(int d, String c, double a) {
-	return String.format("%d    %s       $%10s     Failed\n", d, c, String.format("%.2f", a));
+    private void formatWDStatus(int d, String c, double a) {
+        string_data += String.format("%d    %s       $%10s     Failed\n", d, c, String.format("%.2f", a));
     }
 
     public void batchMode(String filename) throws NegativeBalanceException, FileNotFoundException {
-	String s = "==========   Initial Bank Data ==================\n\n" + toString() +  "\n===============================================\n";
+        string_data = "==========   Initial Bank Data ==================\n\n" + toString() +  "\n===============================================\n";
 	sc = new Scanner(new File(filename));
 	while (sc.hasNextLine()) {
 	    String command = sc.nextLine();
 	    String[] commandData = command.split(" ");
 	    switch(commandData[0]) {
 	    case "o":
-		s+=open(commandData[1], Integer.parseInt(commandData[2]), Integer.parseInt(commandData[3]), Double.parseDouble(commandData[4]));
+		open(commandData[1], Integer.parseInt(commandData[2]), Integer.parseInt(commandData[3]), Double.parseDouble(commandData[4]));
 		break;
 	    case "c":
-		s+=close(Integer.parseInt(commandData[1]));
+		close(Integer.parseInt(commandData[1]));
 		break;
 	    case "w":
-		s+=withdraw(Integer.parseInt(commandData[1]), Double.parseDouble(commandData[2]));
+		withdraw(Integer.parseInt(commandData[1]), Double.parseDouble(commandData[2]));
 		break;
 	    case "d":
-		s+=deposit(Integer.parseInt(commandData[1]), Double.parseDouble(commandData[2]));
+		deposit(Integer.parseInt(commandData[1]), Double.parseDouble(commandData[2]));
 		break;
 	    case "a":
-		s+=applyInterest();
+		applyInterest();
 		break;
 	    }
 	}
-	s+= ("\n==========   Final Bank Data ==================\n\n" + toString() + "\n===============================================\n");
-	System.out.println(s);
+	string_data += ("\n==========   Final Bank Data ==================\n\n" + toString() + "\n===============================================\n");
+	System.out.println(string_data);
     }
 
-    public String open(String type, int id, int pin, double balance) {
-	if (!accounts.containsKey(id)) {
+    public boolean open(String type, int id, int pin, double balance) {
+        if ((id < 1000 || id > 9999) && (pin < 1000 || pin > 9999)) {
+	}
+	if (!idExists(id)) {
 	    try {
 		Account acc;
 		switch(type) {
@@ -140,51 +144,65 @@ public class Bank extends Observable {
 		    throw new InvalidAccountTypeException();
 		}
 		accounts.put(id, acc);
-		return formatOCStatus(pin, "o", type, balance);
+	        formatOCStatus(pin, "o", type, balance);
+		return true;
 	    } catch (InvalidAccountTypeException e) {
-		return formatOCStatus(id, "o", type);
+	        formatOCStatus(id, "o", type);
+		return false;
 	    } catch (NegativeBalanceException e) {
-		return formatOCStatus(id, "o", type);
+	        formatOCStatus(id, "o", type);
+		return false;
 	    }
 	}
-	return formatOCStatus(id, "o", type, balance);
+	formatOCStatus(id, "o", type);
+	return false;
     }
 
-    public String close(int id) {
+    public boolean close(int id) {
 	Account acc = accounts.get(id);
 	if (acc != null) {
 	    accounts.remove(id);
-	    return formatOCStatus(id, "c", "", acc.getBalance());
+	    formatOCStatus(id, "c", "", acc.getBalance());
+	    return true;
 	}
-	return formatOCStatus(id, "c", "");
+        formatOCStatus(id, "c", "");
+	return false;
     }
 
-    public String deposit(int id, double amount) throws NegativeBalanceException {
+    public boolean deposit(int id, double amount) throws NegativeBalanceException {
 	Account acc = accounts.get(id);
 	if (acc != null) {
 		acc.deposit(amount);
-		return formatWDStatus(id, "d", amount, acc.getBalance());
+	        formatWDStatus(id, "d", amount, acc.getBalance());
+		return true;
 	}
-	return formatWDStatus(id, "d", amount);
+        formatWDStatus(id, "d", amount);
+	return false;
     }
 
-    public String withdraw(int id, double amount) throws NegativeBalanceException {
+    public boolean withdraw(int id, double amount) throws NegativeBalanceException {
 	Account acc = accounts.get(id);
 	if (acc != null) {
 	    acc.withdraw(amount);
-	    return formatWDStatus(id, "w", amount, acc.getBalance());
+	    formatWDStatus(id, "w", amount, acc.getBalance());
+	    return true;
 	}
-	return formatWDStatus(id, "w", amount);
+        formatWDStatus(id, "w", amount);
+	return false;
     }
 
-    public String applyInterest() throws NegativeBalanceException {
+    public void applyInterest() throws NegativeBalanceException {
 	String s = "============== Interest Report ==============\nAccount Adjustment      New Balance\n------- -----------     -----------\n";
         Enumeration<Account> e = accounts.elements();
 	while(e.hasMoreElements()) {
 	    Account acc = e.nextElement();
-	    s += String.format("%d    $%10s     $%10s\n", acc.getID(), acc.applyMonthly(), acc.getBalance());
+	    s += String.format("%d    $%10s     $%10s\n", acc.getID(), String.format("%.2f", acc.applyMonthly()), String.format("%.2f", acc.getBalance()));
 	}
-	return s += "=============================================\n\n";
+        string_data += (s + "=============================================\n\n");
+    }
+
+    public int getBalance(int id) {
+	return accounts.get(id).getBalance();
     }
 
     public String toString() {
@@ -210,6 +228,14 @@ public class Bank extends Observable {
 	PrintWriter w = new PrintWriter(filename, "UTF-8");
 	w.print(formatFile());
 	w.close();
+    }
+
+    public boolean idExists(int id) {
+	return accounts.containsKey(id);
+    }
+
+    public boolean pinVerify(int id, int pin) {
+	return accounts.get(id).getPin() == pin;
     }
 
     public static void main(String[] args) throws NegativeBalanceException, FileNotFoundException, UnsupportedEncodingException {

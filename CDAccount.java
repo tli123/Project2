@@ -1,10 +1,9 @@
 public class CDAccount extends Account {
 
-    private static final double MIN_BALANCE = 500;
-    private static final double INTEREST_RATE = 0.05 / 12;
-
     public CDAccount(int account_id, int pin, double balance) throws NegativeBalanceException {
 	super(account_id, pin, balance);
+	MIN_BALANCE = 500;
+	INTEREST_RATE = 0.05 / 12;
 	if (balance < MIN_BALANCE) throw new NegativeBalanceException();
     }
 
@@ -16,6 +15,6 @@ public class CDAccount extends Account {
     }
 
     public String toString() {
-	return "d " + formatFile();
+	return "x " + formatFile();
     }
 }

@@ -1,7 +1,7 @@
 public class Account {
 
-    private static final double MIN_BALANCE = 0;
-    private static final double INTEREST_RATE = 0;
+    public double MIN_BALANCE;
+    public double INTEREST_RATE;
 
     private int account_id;
     private int pin;
@@ -51,6 +51,7 @@ public class Account {
 
     public synchronized double applyMonthly() throws NegativeBalanceException {
 	double total_extra = balance*INTEREST_RATE;
+	System.out.println(MIN_BALANCE);
 	if (penalty_p) total_extra += calcPenalty();
 	modBalance(total_extra);
 	return total_extra;

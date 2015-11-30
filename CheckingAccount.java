@@ -1,10 +1,9 @@
 public class CheckingAccount extends Account {
 
-    private static final double MIN_BALANCE = 50;
-    private static final double INTEREST_RATE = 0;
-
     public CheckingAccount(int account_id, int pin, double balance) {
 	super(account_id, pin, balance);
+	MIN_BALANCE = 50;
+	INTEREST_RATE = 0;
     }
 
     private double calcPenalty() {
