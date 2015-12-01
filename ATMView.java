@@ -130,6 +130,7 @@ public class ATMView extends JFrame implements Observer {
 		} else {
 		    input = Integer.parseInt(numbers.getText().substring(1, numbers.getText().length()));
 		}
+		number = " ";
 		boolean success;
 		switch(counter) {
 		case(0): //ID Verification
@@ -138,6 +139,8 @@ public class ATMView extends JFrame implements Observer {
 		    if (success) {
 			promptEcho = "Please enter your pin.";
 			counter++;
+		    } else {
+			promptEcho = "Account does not exist, please try again.";
 		    }
 		    break;
 		case(1): //Pin Verification
@@ -145,7 +148,10 @@ public class ATMView extends JFrame implements Observer {
 		    if (success) {
 			promptEcho = "Would you like to see your balance?";
 			counter++;
+		    } else {
+			promptEcho = "Pin does not match account, please try again.";
 		    }
+		    break;
 		case(2): //Balance Inquiry
 		    model.getBalance();
 		    promptEcho = "Would you like to deposit money?";
@@ -156,6 +162,8 @@ public class ATMView extends JFrame implements Observer {
 		    if (success) {
 			promptEcho = "Would you like to withdraw money?";
 			counter++;
+		    } else {
+			promptEcho = "Deposit amount invalid. Please try again.";
 		    }
 		    break;
 		case(4): //Withdraw
@@ -163,9 +171,13 @@ public class ATMView extends JFrame implements Observer {
 		    if (success) {
 			promptEcho = "Would you like to logout?";
 			counter++;
+		    } else {
+			promptEcho = "Withdraw amount invalid, please try again.";
 		    }
+		    break;
 		case(5): //Logout
-		    
+		    counter = 0;
+		    break;
 		}
 	    } else if (e.getActionCommand.equals("Cancel")) {
 		
