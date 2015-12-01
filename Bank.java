@@ -76,6 +76,10 @@ public class Bank extends Observable {
 	}
     }
 
+    public HashTable<Integer, Account> getAccounts() {
+	return accounts;
+    }
+
     private void formatOCStatus(int d, String c, String a, double bal) {
 	String meth = (c.equals("o")) ? "Open:" : "Closed:";
 	if (c.equals("c")) a = " ";

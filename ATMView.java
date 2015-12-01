@@ -122,7 +122,7 @@ public class ATMView extends JFrame implements Observer {
 	}
 	this.add(numberButtons);
 	this.add(otherButtons, BorderLayout.EAST);
-	this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	this.setLocation(100, 100);
 	this.setVisible(true);
 	this.setSize(500, 400);
@@ -237,7 +237,7 @@ public class ATMView extends JFrame implements Observer {
     }
 
     public static void main(String[] args) {
-	ATMView atm = new ATMView();
+	ATMView atm = new ATMView(new ATM());
     }
 
 }
