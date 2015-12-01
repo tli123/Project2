@@ -59,6 +59,16 @@ public class ATMView extends JFrame implements Observer {
 
     /**
      * The counter that matches the correct prompt for the user.
+     * States:
+     * 0: Account input
+     * 1: Pin input
+     * 2: Balance Inquiry
+     * 3: Deposit
+     * 4: Successful Deposit
+     * 5: Withdraw Attempt
+     * 6: Withdraw Failure
+     * 7: Withdraw Success
+     * 8: Logout
      */
     private int counter = 0;
 
@@ -131,56 +141,78 @@ public class ATMView extends JFrame implements Observer {
 		    input = Integer.parseInt(numbers.getText().substring(1, numbers.getText().length()));
 		}
 		number = " ";
-		boolean success;
 		switch(counter) {
-		case(0): //ID Verification
+	        case(0):
 		    ID = input;
-		    success = model.verifyID(ID);
-		    if (success) {
-			promptEcho = "Please enter your pin.";
+		    if (model.verifyID(ID)) {
 			counter++;
+			promptEcho = "Account found. Please enter your pin.";
 		    } else {
-			promptEcho = "Account does not exist, please try again.";
+			promptEcho = "Account not found. Please try again.";
 		    }
 		    break;
-		case(1): //Pin Verification
-		    success = model.pinVerify(ID, input);
-		    if (success) {
-			promptEcho = "Would you like to see your balance?";
+		case(1):
+		    if (model.verifyPin(input)) {
+			promptEcho = "Login Successful. Displaying Balance.";
+			model.getBalance();
 			counter++;
 		    } else {
-			promptEcho = "Pin does not match account, please try again.";
+			promptEcho = "Login failed. Please try again.";
+			counter = 0;
 		    }
 		    break;
-		case(2): //Balance Inquiry
-		    model.getBalance();
-		    promptEcho = "Would you like to deposit money?";
+		case(2):
+		    promptEcho = "How much would you like to deposit?";
 		    counter++;
 		    break;
-		case(3): //Deposit
-		    success = model.deposit(input);
-		    if (success) {
-			promptEcho = "Would you like to withdraw money?";
-			counter++;
+		case(3):
+		    model.deposit(input);
+		    promptEcho = "Deposit successful.";
+		    counter++;
+		    break;
+                case(4):
+		    promptEcho = "How much would you like to withdraw?";
+		    counter++;
+		    break;
+                case(5):
+		    if (model.withdraw(input)) {
+			counter += 2;
+			promptEcho = "Withdrawal successful";
 		    } else {
-			promptEcho = "Deposit amount invalid. Please try again.";
+			counter++;
+			promptEcho = "Withdrawal failed";
 		    }
 		    break;
-		case(4): //Withdraw
-		    success = model.withdraw(input);
-		    if (success) {
-			promptEcho = "Would you like to logout?";
-			counter++;
-		    } else {
-			promptEcho = "Withdraw amount invalid, please try again.";
-		    }
+		case(6):
+		    promptEcho = "Logout?";
+		    counter += 2;
 		    break;
-		case(5): //Logout
+		case(7):
+		    promptEcho = "Logout?";
+		    counter += 1;
+		    break;
+		case(8):
+		    promptEcho = "Welcome to ACME! Please enter your Account ID.";
+		    counter = 0;
+		    ID = 0;
+		    pin = null;
+		}
+		number = " ";
+		validate();
+	    } else if (e.getActionCommand.equals("Cancel")) {
+		switch(counter) {
+		case(1):
 		    counter = 0;
 		    break;
+		case(3):
+		    counter = 3;
+		    break;
+		case(4):
+		    counter = 4;
+		    break;
 		}
-	    } else if (e.getActionCommand.equals("Cancel")) {
-		
+                number = " ";
+		validate();
 	    } else if (e.getActionCommand.equals("Clear")) {
 		numbers = " ";
 		validate();
