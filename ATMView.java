@@ -235,9 +235,4 @@ public class ATMView extends JFrame implements Observer {
 	prompt.setText(promptEcho);
 	validate();
     }
-
-    public static void main(String[] args) {
-	ATMView atm = new ATMView(new ATM());
-    }
-
 }

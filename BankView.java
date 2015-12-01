@@ -66,7 +66,7 @@ public class BankView extends JFrame implements Observer {
     private class ButtonListener implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 	    if (e.getActionCommand.equals("Launch ATM")) {
-		ATMView atm = new ATMView(new ATM);
+		ATMView atm = new ATMView(new ATM(model));
 	    } else if (e.getActionCommand.equals("Update")) {
 		accounts = model.getAccounts();
 	    }
