@@ -4,7 +4,7 @@
  * Holds the Bank GUI View that communicates with the Bank model.
  *
  * File:
- *	$Id: BankView.java,v 1.0 2015/11/xx 00:00:00 csci140 Exp csci140 $
+ *	$Id: BankView.java,v 1.0 2015/12/02 17:23:14 csci140 Exp csci140 $
  *
  * Revisions:
  *	$Log: BankView.java,v $
@@ -26,11 +26,24 @@ import java.util.Observable;
 
 public class BankView extends JFrame implements Observer {
     
+    /**
+     * The Bank model.
+     */
     private Bank model;
 
+    /**
+     * The JTable that holds the account information in the bank.
+     */
     private JTable bankInfo;
+
+    /**
+     * Holds the data for the information in the Bank.
+     */
     String[] col_names;
 
+    /**
+     * Creates the Bank GUI.
+     */
     public BankView(Bank model) {
 	this.model = model;
 	model.addObserver(this);
@@ -58,6 +71,9 @@ public class BankView extends JFrame implements Observer {
 	this.setLocation(50, 50);
     }
 
+    /**
+     * Private class that acts as the action listener for the buttons.
+     */
     private class ButtonListener implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 	    if (e.getActionCommand().equals("Launch ATM")) {
@@ -74,6 +90,12 @@ public class BankView extends JFrame implements Observer {
 	}
     }
 
+    /**
+     * Update the window when the model indicates an update is
+     * required. Updates the information displayed on the GUI.
+     * @param t - An Observable -- not used.
+     * @param o - An Object -- not used.
+     */
     public void update(Observable o, Object t) {
 	JPanel middle = new JPanel();
 	middle.setLayout(new GridLayout(1,1));

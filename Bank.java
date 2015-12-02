@@ -5,7 +5,7 @@
  * implemented with Swing 
  *
  * File:
- *	$Id: Bank.java,v 1.0 2015/11/xx 00:00:00 csci140 Exp csci140 $
+ *	$Id: Bank.java,v 1.0 2015/12/02 17:23:12 csci140 Exp csci140 $
  *
  * Revisions:
  *	$Log: Bank.java,v $
@@ -21,10 +21,8 @@
  */
 
 import java.util.Observable;
-import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.File;
-import java.lang.String;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.io.PrintWriter;
@@ -43,11 +41,29 @@ public class Bank extends Observable {
      * The scanner that reads the bankFile.
      */
     private Scanner sc;
+
+    /**
+     * The filename of this bank.
+     */
     private String filename;
+
+    /**
+     * String representation of the bank.
+     */
     private String string_data;
 
+    /**
+     * Holds the toString.
+     */
     private String currentStatus;
 
+    /**
+     * Creates a bank object.
+     * @param filename - The file that the bank is reading from.
+     * @exception NegativeBalanceException Thrown if the balance becomes
+     *                                     negative.
+     * @exception FileNotFoundException Thrown when file is not found.
+     */
     public Bank(String filename) throws NegativeBalanceException, FileNotFoundException {
 	string_data = "";
 	accounts = new Hashtable<Integer, Account>();
@@ -78,26 +94,59 @@ public class Bank extends Observable {
 	}
     }
 
+    /**
+     * Formats the terminal receipt.
+     * @param d - ID.
+     * @param c - type of operation.
+     * @param a - type of account.
+     * @param bal - the balance.
+     */
     private void formatOCStatus(int d, String c, String a, double bal) {
 	String meth = (c.equals("o")) ? "Open:" : "Closed:";
 	if (c.equals("c")) a = " ";
         string_data += String.format("%d    %s   %s   %s Success   $%10s\n", d, c, a, meth, String.format("%.2f", bal));
     }
 
+    /**
+     * Formats the terminal receipt.
+     * @param d - ID.
+     * @param c - type of operation.
+     * @param a - type of account.
+     */
     private void formatOCStatus(int d, String c, String a) {
 	String meth = (c.equals("o")) ? "Open:" : "Closed:";
 	if (c.equals("c")) a = " ";
         string_data += String.format("%d    %s   %s   %s Failed\n", d, c, a, meth);
     }
 
+    /**
+     * Formats the terminal receipt.
+     * @param d - ID.
+     * @param c - type of operation.
+     * @param a - amount deposited.
+     * @param bal - the balance.
+     */
     private void formatWDStatus(int d, String c, double a, double bal) {
         string_data += String.format("%d    %s       $%10s     $%10s\n", d, c,  String.format("%.2f", a), String.format("%.2f", bal));
     }
 
+    /**
+     * Formats the terminal receipt.
+     * @param d - ID.
+     * @param c - type of operation.
+     * @param a - amount deposited.
+     */
     private void formatWDStatus(int d, String c, double a) {
         string_data += String.format("%d    %s       $%10s     Failed\n", d, c, String.format("%.2f", a));
     }
 
+    /**
+     * Runs batch mode.
+     * @param filename - The file that the bank is reading from.
+     * @exception NegativeBalanceException Thrown if the balance becomes
+     *                                     negative.
+     * @exception FileNotFoundException Thrown when file is not found.
+     */
     public void batchMode(String filename) throws NegativeBalanceException, FileNotFoundException {
         string_data = "==========   Initial Bank Data ==================\n\n" + toString() +  "\n===============================================\n";
 	sc = new Scanner(new File(filename));
@@ -126,6 +175,14 @@ public class Bank extends Observable {
 	System.out.println(string_data);
     }
 
+    /**
+     * Opens the account.
+     * @param type - type of account.
+     * @param id - id of the account.
+     * @param pin - the pin of the account.
+     * @param balance - the balance of the account.
+     * @return True if the account opened, false otherwise.
+     */
     public boolean open(String type, int id, int pin, double balance) {
         if ((id < 1000 || id > 9999) && (pin < 1000 || pin > 9999)) {
 	}
@@ -160,6 +217,11 @@ public class Bank extends Observable {
 	return false;
     }
 
+    /**
+     * Close the account.
+     * @param id - id of the account.
+     * @return True if the account closed, false otherwise.
+     */
     public boolean close(int id) {
 	Account acc = accounts.get(id);
 	if (acc != null) {
@@ -171,6 +233,12 @@ public class Bank extends Observable {
 	return false;
     }
 
+    /**
+     * Deposits into the account.
+     * @param id - id of the account.
+     * @param balance - the balance of the account.
+     * @return True if the amount was deposited, false otherwise.
+     */
     public boolean deposit(int id, double amount) {
 	Account acc = accounts.get(id);
 	try {
@@ -187,6 +255,12 @@ public class Bank extends Observable {
 	return false;
     }
 
+    /**
+     * Withdraws from the account.
+     * @param id - id of the account.
+     * @param balance - the balance of the account.
+     * @return True if the amount was withdrawn, false otherwise.
+     */
     public boolean withdraw(int id, double amount) {
 	Account acc = accounts.get(id);
 	try {
@@ -202,6 +276,11 @@ public class Bank extends Observable {
 	return false;
     }
 
+    /**
+     * Applies interest or penalties into the account.
+     * @exception NegativeBalanceException Thrown when the penalty
+     *                                     makes balance negative.
+     */
     public void applyInterest() throws NegativeBalanceException {
 	String s = "============== Interest Report ==============\nAccount Adjustment      New Balance\n------- -----------     -----------\n";
         Enumeration<Account> e = accounts.elements();
@@ -212,10 +291,19 @@ public class Bank extends Observable {
         string_data += (s + "=============================================\n\n");
     }
 
+    /**
+     * Gets balance associated with the id. 
+     * @param id - the id of the account.
+     * @return The balance associated with the ID.
+     */
     public double getBalance(int id) {
 	return accounts.get(id).getBalance();
     }
 
+    /**
+     * Gets the string reprsentation of the data in the bank. 
+     * @return The string reprsentation of the data in the bank.
+     */
     public String toString() {
 	String data = "Account Type    Account Balance\n------------    ------- -----------\n";
         Enumeration<Account> e = accounts.elements();
@@ -229,29 +317,44 @@ public class Bank extends Observable {
 	return data;
     }
 
-    public String formatFile() {
-	String s = "";
-	Enumeration<Account> e = accounts.elements();
-	while(e.hasMoreElements()) {
-	    s += e.nextElement().toString();
-	}
-	return s;
-    }
-
+    /**
+     * Writes the bank data in the accounts into the file.
+     * @exception FileNotFoundException Thrown if file is not found.
+     * @exception UnsupportedEncodingException Thrown when proper encoder
+     *                                         is not found.
+     */
     public void write() throws FileNotFoundException, UnsupportedEncodingException {
 	PrintWriter w = new PrintWriter(filename, "UTF-8");
-	w.print(formatFile());
+	Enumeration<Account> e = accounts.elements();
+	while(e.hasMoreElements()) {
+	    w.print(e.nextElement().toString());
+	}
 	w.close();
     }
 
+    /**
+     * Checks if the ID exists.
+     * @param id - The ID to look for.
+     * @return True if the account exists, false otherwise.
+     */
     public boolean idExists(int id) {
 	return accounts.containsKey(id);
     }
 
+    /**
+     * Checks if the ID matches with the pin.
+     * @param id - The ID to look for.
+     * @param pin - The pin to check.
+     * @return True if pin matches, false otherwise.
+     */
     public boolean pinVerify(int id, int pin) {
 	return accounts.get(id).getPin() == pin;
     }
 
+    /**
+     * Creates a 2D array to format for the bank gui.
+     * @return A 2D array to format for the bank gui.
+     */
     public Object[][] getCurrentStatus() {
 	Object[][] status = new Object[accounts.size()][3];
 	int n = 0;
@@ -263,6 +366,15 @@ public class Bank extends Observable {
 	return status;
     }
 
+    /**
+     * The main method that starts the bank.
+     * @param args - Command line arguments.
+     * @exception FileNotFoundException Thrown if file is not found.
+     * @exception UnsupportedEncodingException Thrown when proper encoder
+     *                                         is not found.
+     * @exception NegativeBalanceException Thrown if the balance becomes
+     *                                     negative.
+     */
     public static void main(String[] args) throws NegativeBalanceException, FileNotFoundException, UnsupportedEncodingException {
 	if (args.length < 1 || args.length > 2) {
 	    System.out.println("Usage: java Bank bankFile [batchFile]");

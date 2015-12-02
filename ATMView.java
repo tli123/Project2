@@ -1,9 +1,31 @@
+/**
+ * ATMView.java
+ *
+ * This class uses a GUI to use the ATM.
+ *
+ * File:
+ *	$Id: ATMView.java,v 1.0 2015/12/02 16:43:23 csci140 Exp csci140 $
+ *
+ * Revisions:
+ *	$Log: ATMView.java,v $
+ *	Initial revision
+ *
+ */
+
+/**
+ * The ATM GUI class.
+ *
+ * @author Ziwei Ye
+ * @author Tommy Li
+ */
+
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.Observer;
 import java.util.Observable;
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 
 public class ATMView extends JFrame implements Observer {
 
@@ -23,7 +45,7 @@ public class ATMView extends JFrame implements Observer {
     private String number;
 
     /**
-     *
+     * The pin that will be inputted by the user.
      */
     private String pin = "";
 
@@ -31,6 +53,7 @@ public class ATMView extends JFrame implements Observer {
      * The ATM Model.
      */
     private ATM model;
+
     /**
      * The constructor that will initialize the components.
      */
@@ -67,12 +90,25 @@ public class ATMView extends JFrame implements Observer {
 	}
 	JPanel otherButtons = new JPanel();
 	otherButtons.setLayout(new GridLayout(4, 1));
-	String[] buttons = new String[]{"OK", "Cancel", "Clear", "Close"};
+	String[] buttons = new String[]{"OK", "Cancel", "Clear"};
 	for (int i = 0; i < buttons.length; i++) {
 	    button = new JButton(buttons[i]);
 	    button.addActionListener(buttonListener);
 	    otherButtons.add(button);
 	}
+	button = new JButton("Close");
+	final JFrame thisFrame = this;
+	button.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		try {
+		    model.logout();
+		    thisFrame.dispose();
+		} catch (FileNotFoundException f) {
+		} catch (UnsupportedEncodingException f) {
+		}
+	    }
+	});
+	otherButtons.add(button);
 	this.add(numberButtons);
 	this.add(otherButtons, BorderLayout.EAST);
 	this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -87,51 +123,52 @@ public class ATMView extends JFrame implements Observer {
     private class ButtonListener implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 	    if (e.getActionCommand().equals("OK")) {
-		int input = 0;
-		if (model.getCounter() == 1) {
-		    input = Integer.parseInt(pin);
-		} else if (!numbers.getText().equals(" ")){
-		    input = Integer.parseInt(numbers.getText().substring(1, numbers.getText().length()));
-		}
-		number = " ";
-	        switch(model.getCounter()) {
-		case(0):
-		    model.setID(input);
-		    model.idExists();
-		    break;
-		case(1):
-		    model.setPin(input);
-		    model.pinVerify();
-		    pin = "";
-		    break;
-		case(2):
-		    model.getBalance();
-		    break;
-		case(3):
-		    model.preDeposit();
-		    break;
-		case(4):
-		    model.deposit((double)input);
-		    break;
-		case(5):
-		    model.preWithdraw();
-		    break;
-		case(6):
-		    model.withdraw((double)input);
-		    break;
-		case(7):
-		    model.preLogout();
-		    break;
-		case(8):
-		    try {
-			model.logout();
-		    } catch (FileNotFoundException f) {
-		    } catch (UnsupportedEncodingException f) {
+		if (numbers.getText().equals(" ") && model.getEdit()) {
+		    model.invalid();
+		} else {
+		    int input = 0;
+		    if (model.getCounter() == 1) {
+			input = Integer.parseInt(pin);
+		    } else if (!numbers.getText().equals(" ")){
+			input = Integer.parseInt(numbers.getText().substring(1, numbers.getText().length()));
 		    }
-		    break;
-		case(9):
-		    model.postLogout();
-		    break;
+		    number = " ";
+		    switch(model.getCounter()) {
+		    case(0):
+			model.setID(input);
+			model.idExists();
+			break;
+		    case(1):
+			model.setPin(input);
+			model.pinVerify();
+			pin = "";
+			break;
+		    case(2):
+			model.preTransaction();
+			break;
+		    case(3):
+			model.transaction(input);
+			break;
+		    case(4):
+			model.deposit((double)input);
+			break;
+		    case(5):
+			model.withdraw((double)input);
+			break;
+		    case(6):
+			try {
+			    model.logout();
+			} catch (FileNotFoundException f) {
+			} catch (UnsupportedEncodingException f) {
+			}
+			break;
+		    case(7):
+			model.postLogout();
+			break;
+		    case(8):
+			model.cancel();
+			break;
+		    }
 		}
 	    } else if (e.getActionCommand().equals("Cancel")) {
 		number = " ";
@@ -139,24 +176,29 @@ public class ATMView extends JFrame implements Observer {
 	    } else if (e.getActionCommand().equals("Clear")) {
 		number = " ";
 		model.updateNumbers();
-	    } else if (e.getActionCommand().equals("Close")) {
-
 	    } else {
-		int willInput = model.getCounter();
-		if (willInput == 1) {
+		if (model.getCounter() == 1) {
 		    number = numbers.getText() + "*";
 		    pin += e.getActionCommand();
-		} else if (willInput != 2 && willInput != 3 && willInput != 5 && willInput != 7 && willInput != 8 && willInput != 9) {
+		} else if (model.getEdit()) {
 		    number = numbers.getText() + e.getActionCommand();
 		}
 	        model.updateNumbers();
 	    }
 	}
     }
-       
+
+    /**
+     * Update the window when the model indicates an update is
+     * required. Update changes the prompt as well as the numbers
+     * echoed back to user.
+     * @param t - An Observable -- not used.
+     * @param o - An Object -- not used.
+     */
     public void update(Observable t, Object o) {
 	numbers.setText(number);
 	prompt.setText(model.getStatus());
+	System.out.println(model.getStatus());
 	validate();
     }
 

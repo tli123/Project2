@@ -1,28 +1,29 @@
 /**
- * NegativeBalanceException.java
+ * InvalidAccountTypeException.java
  *
- * Exception that is thrown when an account goes under min balance for CD,
- * or under 0 for Checking and Savins.
+ * Thrown when the bathcMode has an unrecognizable account type.
  *
  * File:
- *	$Id: NegativeBalanceException.java,v 1.0 2015/11/xx 00:00:00 csci140 Exp csci140 $
+ *	$Id: InvalidAccountTypeException.java,v 1.0 2015/12/02 18:21:25 csci140 Exp csci140 $
  *
  * Revisions:
- *	$Log: NegativeBalanceException.java,v $
+ *	$Log: InvalidAccountTypeException.java,v $
  *	Initial revision
  *
  */
 
 /**
- * The Exception thrown when the accounts go under min balance.
+ * The Exception thrown when the batchmode has unrecogniable account types.
  *
  * @author Tommy Li
  * @author Ziwei Ye
  */
 
-
 public class InvalidAccountTypeException extends Exception {
 
+    /**
+     * Constuctor of the Exception.
+     */
     public InvalidAccountTypeException() {
 	super();
     }
