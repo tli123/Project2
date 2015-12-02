@@ -198,7 +198,6 @@ public class ATMView extends JFrame implements Observer {
     public void update(Observable t, Object o) {
 	numbers.setText(number);
 	prompt.setText(model.getStatus());
-	System.out.println(model.getStatus());
 	validate();
     }
 

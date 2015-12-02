@@ -63,7 +63,6 @@ public class Account {
 	this.pin = pin;
 	this.balance = balance;
 	if(balance < MIN_BALANCE) penalty_p = true;
-	this.open_p = false;
     }
 
     /**
