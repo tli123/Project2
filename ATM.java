@@ -1,93 +1,151 @@
-/**
- * ATM.java
- *
- * Holds the ATM Model that communicates with both the Bank model and
- * the ATM GUI.
- *
- * File:
- *	$Id: ATM.java,v 1.0 2015/11/xx 00:00:00 csci140 Exp csci140 $
- *
- * Revisions:
- *	$Log: ATM.java,v $
- *	Initial revision
- *
- */
-
-/**
- * The ATM Model.
- *
- * @author Tommy Li
- * @author Ziwei Ye
- */
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
 import java.util.Observable;
 import java.util.Observer;
+import java.io.*;
 
 public class ATM extends Observable {
 
-    private Bank model;
-    private int id = 0;
+    private int ID;
 
-    //  private Account acc;
+    private int pin;
+
+    private Bank model;
+
+    private String status;
+
+    private int counter;
 
     public ATM(Bank model) {
-        this.model = model;
+	this.model = model;
+	ID = 0;
+	pin = 0;
+	counter = 0;
+	status = "Welcome to ACME! Please enter your account ID.";
     }
 
-    public void setID(int id) {
-	this.id = id;
+    public int getID() {
+	return ID;
     }
 
-    public boolean deposit(double amount) { 
-	if (model.deposit(id, amount)) {
-	    setChanged();
-	    notifyObservers();
-	    return true;
+    public void setID(int ID) {
+	this.ID = ID;
+    }
+
+    public int getPin() {
+	return pin;
+    }
+
+    public void setPin(int pin) {
+	this.pin = pin;
+    }
+
+    public String getStatus() {
+	return status;
+    }
+
+    public int getCounter() {
+	return counter;
+    }
+
+    public void idExists() {
+	if (model.idExists(ID)) {
+	    status = "Account found. Please enter your pin.";
+	    counter++;
 	} else {
-	    return false;
+	    status = "Account not found. Please try again.";
 	}
+	setChanged();
+	notifyObservers();
     }
 
-    public boolean withdraw(double amount) {
-	if (model.withdraw(id, amount)) {
-	    setChanged();
-	    notifyObservers();
-	    return true;
+    public void pinVerify() {
+	if (model.pinVerify(ID, pin)) {
+	    status = "Login successful. Press OK to see balance information.";
+	    counter++;
 	} else {
-	    return false;
+	    status = "Login failed. Please enter account information.";
+	    counter = 0;
 	}
-    }
-    
-    public void write() {
-	try {
-	    model.write();
-	} catch (FileNotFoundException e) {}
-	catch (UnsupportedEncodingException e) {}
-    }
-		
-
-    public double getBalance() {
-        return model.getBalance(id);
+	setChanged();
+	notifyObservers();
     }
 
-    public boolean idExists() {
-	if (model.idExists(id)) {
-	    setChanged();
-	    notifyObservers();
-	    return true;
+    public void getBalance() {
+	status = "Balance is " + model.getBalance(ID) + ". Press OK to continue.";
+	counter++;
+	setChanged();
+	notifyObservers();
+    }
+
+    public void preDeposit() {
+	status = "How much would you like to deposit?";
+	counter++;
+	setChanged();
+	notifyObservers();
+    }
+
+    public void deposit(double amount) {
+	model.deposit(ID, amount);
+	status = "Deposit successful. Balance is " + model.getBalance(ID) + ". Press OK to continue.";
+	counter++;
+	setChanged();
+	notifyObservers();
+    }
+
+    public void preWithdraw() {
+	status = "How much would you like to withdraw?";
+	counter++;
+	setChanged();
+	notifyObservers();
+    }
+
+    public void withdraw(double amount) {
+	if (model.withdraw(ID, amount)) {
+	    status = "Withdraw successful. Balance is " + model.getBalance(ID) + ". Press OK to continue.";
+	    counter++;
 	} else {
-	    return false;
+	    status = "Withdraw failed. Press OK to begin withdrawing again.";
+	    counter--;
 	}
+	setChanged();
+	notifyObservers();
     }
 
-    public boolean pinVerify(int pin) {
-	if (model.pinVerify(id, pin)) {
-	    setChanged();
-	    notifyObservers();
-	    return true;
-	} else {
-	    return false;
-	}
+    public void preLogout() {
+	status = "Would you like to logout?";
+	counter++;
+	setChanged();
+	notifyObservers();
     }
+
+    public void logout() throws FileNotFoundException, UnsupportedEncodingException {
+	ID = 0;
+	pin = 0;
+	status = "Logout successful. Press OK to continue.";
+	counter++;
+	model.write();
+	setChanged();
+	notifyObservers();
+    }
+
+    public void postLogout() {
+	status = "Welcome to ACME! Please enter your account ID.";
+	counter = 0;
+	setChanged();
+	notifyObservers();
+    }
+
+    public void cancel() {
+	if (counter == 0 || counter == 1) {
+	    counter = 0;
+	    status = "Welcome to ACME! Please enter your account ID.";
+	}
+	setChanged();
+	notifyObservers();
+    }
+
+    public void updateNumbers() {
+	setChanged();
+	notifyObservers();
+    }
+
 }
