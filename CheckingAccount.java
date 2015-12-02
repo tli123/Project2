@@ -17,4 +17,8 @@ public class CheckingAccount extends Account {
     public String toString() {
 	return "c " + formatFile();
     }
+
+    public Object[] returnSelf() {
+	return new Object[]{"Checking Account", new Integer(getID()), new Double(getBalance())};
+    }
 }

@@ -37,8 +37,9 @@ public class Account {
 	return balance;
     }
 
-    public synchronized void withdraw(double amount) throws NegativeBalanceException {
+    public synchronized boolean withdraw(double amount) throws NegativeBalanceException {
 	modBalance(-1*amount);
+	return true;
     }
 
     public synchronized void deposit(double amount) throws NegativeBalanceException {
@@ -75,5 +76,9 @@ public class Account {
 
     public String formatFile() {
 	return String.format("%d %d %s\n", account_id, pin, String.format("%.2f", balance));
+    }
+
+    public Object[] returnSelf() {
+	return new Object[3];
     }
 }

@@ -7,7 +7,8 @@ public class CDAccount extends Account {
 	if (balance < MIN_BALANCE) throw new NegativeBalanceException();
     }
 
-    public synchronized void withdraw(double amount) {
+    public synchronized boolean withdraw(double amount) {
+	return false;
     }
 
     public String formatReceipt() {
@@ -16,5 +17,9 @@ public class CDAccount extends Account {
 
     public String toString() {
 	return "x " + formatFile();
+    }
+
+    public Object[] returnSelf() {
+	return new Object[]{"CD Account", new Integer(getID()), new Double(getBalance())};
     }
 }

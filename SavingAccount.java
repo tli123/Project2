@@ -17,4 +17,8 @@ public class SavingAccount extends Account {
     public String toString() {
 	return "s " + formatFile();
     }
+
+    public Object[] returnSelf() {
+	return new Object[]{"Saving Account", new Integer(getID()), new Double(getBalance())};
+    }
 }

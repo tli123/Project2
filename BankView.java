@@ -28,17 +28,18 @@ public class BankView extends JFrame implements Observer {
     
     private Bank model;
 
-    private JTextArea bankInfo;
+    private JTable bankInfo;
+    String[] col_names;
 
     public BankView(Bank model) {
 	this.model = model;
 	model.addObserver(this);
 	this.getContentPane().setLayout(new BorderLayout());
 	JPanel middle = new JPanel();
-	middle.setLayout(new FlowLayout());
-	bankInfo = new JTextArea();
-	bankInfo.setEditable(false);
-	bankInfo.setText(model.toString());
+	middle.setLayout(new GridLayout(1,1));
+        col_names = new String[]{"Type", "ID", "Balance"};
+	bankInfo = new JTable(model.getCurrentStatus(), col_names);
+        bankInfo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 	middle.add(bankInfo);
 	this.add(middle);
 	JPanel bottom = new JPanel();
@@ -62,14 +63,25 @@ public class BankView extends JFrame implements Observer {
 	    if (e.getActionCommand().equals("Launch ATM")) {
 		ATMView atm = new ATMView(new ATM(model));
 	    } else if (e.getActionCommand().equals("Update")) {
-	        model.toString();
+		JPanel middle = new JPanel();
+		middle.setLayout(new GridLayout(1,1));
+		bankInfo = new JTable(model.getCurrentStatus(), col_names);
+		bankInfo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		middle.add(bankInfo);
+	        add(middle);
+		validate();
 	    }
 	}
     }
 
     public void update(Observable o, Object t) {
-	bankInfo.setText(model.getCurrentStatus());
-	validate();
+	JPanel middle = new JPanel();
+	middle.setLayout(new GridLayout(1,1));
+	bankInfo = new JTable(model.getCurrentStatus(), col_names);
+	bankInfo.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+	middle.add(bankInfo);
+        add(middle);
+       	validate();
     }
 
 }

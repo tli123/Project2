@@ -190,10 +190,9 @@ public class Bank extends Observable {
     public boolean withdraw(int id, double amount) {
 	Account acc = accounts.get(id);
 	try {
-	    if (acc != null) {
-		acc.withdraw(amount);
+	    if (acc != null && acc.withdraw(amount)) {
 		formatWDStatus(id, "w", amount, acc.getBalance());
-		return true;
+		return true;		
 	    }
 	} catch (NegativeBalanceException e) {
 	    formatWDStatus(id, "w", amount);
@@ -253,8 +252,15 @@ public class Bank extends Observable {
 	return accounts.get(id).getPin() == pin;
     }
 
-    public String getCurrentStatus() {
-	return currentStatus;
+    public Object[][] getCurrentStatus() {
+	Object[][] status = new Object[accounts.size()][3];
+	int n = 0;
+	Enumeration<Account> e = accounts.elements();
+	while(e.hasMoreElements()) {
+	    status[n] = e.nextElement().returnSelf();
+	    n++;
+	}
+	return status;
     }
 
     public static void main(String[] args) throws NegativeBalanceException, FileNotFoundException, UnsupportedEncodingException {
