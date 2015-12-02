@@ -76,10 +76,6 @@ public class Bank extends Observable {
 	}
     }
 
-    public HashTable<Integer, Account> getAccounts() {
-	return accounts;
-    }
-
     private void formatOCStatus(int d, String c, String a, double bal) {
 	String meth = (c.equals("o")) ? "Open:" : "Closed:";
 	if (c.equals("c")) a = " ";
@@ -173,23 +169,33 @@ public class Bank extends Observable {
 	return false;
     }
 
-    public boolean deposit(int id, double amount) throws NegativeBalanceException {
+    public boolean deposit(int id, double amount) {
 	Account acc = accounts.get(id);
-	if (acc != null) {
+	try {
+	    if (acc != null) {
 		acc.deposit(amount);
 	        formatWDStatus(id, "d", amount, acc.getBalance());
 		return true;
+	    }
+	} catch (NegativeBalanceException e) {
+	    formatWDStatus(id, "d", amount);
+	    return false;
 	}
         formatWDStatus(id, "d", amount);
 	return false;
     }
 
-    public boolean withdraw(int id, double amount) throws NegativeBalanceException {
+    public boolean withdraw(int id, double amount) {
 	Account acc = accounts.get(id);
-	if (acc != null) {
-	    acc.withdraw(amount);
-	    formatWDStatus(id, "w", amount, acc.getBalance());
-	    return true;
+	try {
+	    if (acc != null) {
+		acc.withdraw(amount);
+		formatWDStatus(id, "w", amount, acc.getBalance());
+		return true;
+	    }
+	} catch (NegativeBalanceException e) {
+	    formatWDStatus(id, "w", amount);
+	    return false;
 	}
         formatWDStatus(id, "w", amount);
 	return false;
@@ -205,7 +211,7 @@ public class Bank extends Observable {
         string_data += (s + "=============================================\n\n");
     }
 
-    public int getBalance(int id) {
+    public double getBalance(int id) {
 	return accounts.get(id).getBalance();
     }
 
@@ -249,6 +255,7 @@ public class Bank extends Observable {
 	} 
         Bank bank = new Bank(args[0]);
 	if (args.length == 1) {
+	    BankView gui = new BankView(bank);
 	    bank.write();
 	} else if (args.length == 2) {
 	    bank.batchMode(args[1]);

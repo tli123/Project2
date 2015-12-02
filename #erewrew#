@@ -1,0 +1,24 @@
+    /**
+     * The counter that matches the correct prompt for the user.
+     * States:
+     * 0: Account input
+     * 1: Pin input
+     * 2: Balance Inquiry
+     * 3: Deposit
+     * 4: Successful Deposit
+     * 5: Withdraw Attempt
+     * 6: Withdraw Failure
+     * 7: Withdraw Success
+     * 8: Logout
+     */
+    private enum gui_states = {
+        ACCOUNT_INPUT, 
+	PIN_INPUT, 
+	BALANCE_INQUIRY,
+	DEPOSIT,
+	SUCCESSFUL_DEPOSIT,
+	WITHDRAW_ATTEMPT,
+	WITHDRAW_FAILURE,
+	WITHDRAW_SUCCESS,
+	LOGOUT,
+    }

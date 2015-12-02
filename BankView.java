@@ -16,35 +16,29 @@
  * The Bank GUI view and control.
  *
  * @author Tommy Li
- * @author Ziwei Ye
+ * @author Ziwei Ye  
  */
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JOptionPane;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 import java.util.Observer;
+import java.util.Observable;
 
 public class BankView extends JFrame implements Observer {
     
     private Bank model;
 
-    private JTextField bankInfo;
-
-    private HashTable<Integer, Account> accounts;
+    private JTextArea bankInfo;
 
     public BankView(Bank model) {
 	this.model = model;
 	model.addObserver(this);
-	account = model.getAccounts();
 	this.getContentPane().setLayout(new BorderLayout());
 	JPanel middle = new JPanel();
 	middle.setLayout(new FlowLayout());
-	bankInfo = new JTextField();
-	bankField.setEditable(false);
-	//Iterate through HashTable and get all the acc's toString
+	bankInfo = new JTextArea();
+	bankInfo.setEditable(false);
+	bankInfo.setText(model.toString());
 	middle.add(bankInfo);
 	this.add(middle);
 	JPanel bottom = new JPanel();
@@ -65,12 +59,16 @@ public class BankView extends JFrame implements Observer {
 
     private class ButtonListener implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
-	    if (e.getActionCommand.equals("Launch ATM")) {
+	    if (e.getActionCommand().equals("Launch ATM")) {
 		ATMView atm = new ATMView(new ATM(model));
-	    } else if (e.getActionCommand.equals("Update")) {
-		accounts = model.getAccounts();
+	    } else if (e.getActionCommand().equals("Update")) {
+		///		accounts = model.getAccounts();
 	    }
 	}
+    }
+
+    public void update(Observable o, Object t) {
+
     }
 
 }

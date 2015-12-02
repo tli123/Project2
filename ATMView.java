@@ -4,11 +4,11 @@
  * Holds the ATM GUI. Communicates with the ATM Model.
  *
  * File:
- *	$Id: ATMView.java,v 1.0 2015/11/xx 00:00:00 csci140 Exp csci140 $
+ *      $Id: ATMView.java,v 1.0 2015/11/xx 00:00:00 csci140 Exp csci140 $
  *
  * Revisions:
- *	$Log: ATMView.java,v $
- *	Initial revision
+ *      $Log: ATMView.java,v $
+ *      Initial revision
  *
  */
 
@@ -24,6 +24,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.lang.String;
 import java.util.Observer;
+import java.util.Observable;
 
 public class ATMView extends JFrame implements Observer {
 
@@ -58,6 +59,21 @@ public class ATMView extends JFrame implements Observer {
     private String pin = "";
 
     /**
+     * The ATM Model.
+     */
+    private ATM model;
+    /**
+     * The constructor that will initialize the components.
+     */
+    public ATMView(ATM model) {
+	this.model = model;
+	promptEcho = "Welcome to ACME! Please input your account number.";
+	number = " ";
+	model.addObserver(this);
+	initComponents();
+    }
+
+    /**
      * The counter that matches the correct prompt for the user.
      * States:
      * 0: Account input
@@ -70,23 +86,18 @@ public class ATMView extends JFrame implements Observer {
      * 7: Withdraw Success
      * 8: Logout
      */
-    private int counter = 0;
-
-    /**
-     * The ATM Model.
-     */
-    private ATM model;
-
-    /**
-     * The constructor that will initialize the components.
-     */
-    public ATMView(ATM model) {
-	this.model = model;
-	promptEcho = "Welcome to ACME! Please input your account number.";
-	number = " ";
-	model.addObserver(this);
-	initComponents();
+    private enum Gui_states {
+	ACCOUNT_INPUT, 
+	PIN_INPUT, 
+	BALANCE_INQUIRY,
+	DEPOSIT,
+	SUCCESSFUL_DEPOSIT,
+	WITHDRAW_ATTEMPT,
+	WITHDRAW_FAILURE,
+	WITHDRAW_SUCCESS,
+	LOGOUT
     }
+    private Gui_states gui_states = Gui_states.ACCOUNT_INPUT;
 
     /**
      * Initializes the components.
@@ -132,98 +143,110 @@ public class ATMView extends JFrame implements Observer {
      * Button Listener that controls the buttons in the frame.
      */
     private class ButtonListener implements ActionListener {
+
 	public void actionPerformed(ActionEvent e) {
 	    if (e.getActionCommand().equals("OK")) {
-		int input;
-		if (counter == 1) {
+		int input = 0;;
+		if (gui_states == Gui_states.PIN_INPUT) {
 		    input = Integer.parseInt(pin);
-		} else {
+		} else if (!numbers.getText().equals(" ")){
 		    input = Integer.parseInt(numbers.getText().substring(1, numbers.getText().length()));
 		}
 		number = " ";
-		switch(counter) {
-	        case(0):
+		switch(gui_states) {
+	        case ACCOUNT_INPUT:
 		    ID = input;
-		    if (model.verifyID(ID)) {
-			counter++;
+		    model.setID(ID);
+		    if (model.idExists()) {
+			gui_states = Gui_states.PIN_INPUT;
 			promptEcho = "Account found. Please enter your pin.";
 		    } else {
 			promptEcho = "Account not found. Please try again.";
 		    }
 		    break;
-		case(1):
-		    if (model.verifyPin(input)) {
-			promptEcho = "Login Successful. Displaying Balance.";
-			model.getBalance();
-			counter++;
+		case PIN_INPUT:
+		    if (model.pinVerify(input)) {
+			promptEcho = "Login Successful. Displaying Balance: " + model.getBalance();
+			gui_states = Gui_states.BALANCE_INQUIRY;
 		    } else {
 			promptEcho = "Login failed. Please try again.";
-			counter = 0;
+			pin = "";
+			gui_states = Gui_states.ACCOUNT_INPUT;
 		    }
 		    break;
-		case(2):
+		case BALANCE_INQUIRY:
 		    promptEcho = "How much would you like to deposit?";
-		    counter++;
+		    gui_states = Gui_states.DEPOSIT;
 		    break;
-		case(3):
-		    model.deposit(input);
+		case DEPOSIT:
+		    model.deposit((double)input);
 		    promptEcho = "Deposit successful.";
-		    counter++;
+		    gui_states = Gui_states.SUCCESSFUL_DEPOSIT;
 		    break;
-                case(4):
+                case SUCCESSFUL_DEPOSIT:
 		    promptEcho = "How much would you like to withdraw?";
-		    counter++;
+		    gui_states = Gui_states.WITHDRAW_ATTEMPT;
 		    break;
-                case(5):
-		    if (model.withdraw(input)) {
-			counter += 2;
+                case WITHDRAW_ATTEMPT:
+		    if (model.withdraw((double)input)) {
+			gui_states = Gui_states.WITHDRAW_SUCCESS;
 			promptEcho = "Withdrawal successful";
 		    } else {
-			counter++;
+			gui_states = Gui_states.WITHDRAW_FAILURE;
 			promptEcho = "Withdrawal failed";
 		    }
 		    break;
-		case(6):
-		    promptEcho = "Logout?";
-		    counter += 2;
+		case WITHDRAW_FAILURE:
+		    promptEcho = "How much would you like to withdraw?";
+		    gui_states = Gui_states.WITHDRAW_ATTEMPT;
 		    break;
-		case(7):
+		case WITHDRAW_SUCCESS:
 		    promptEcho = "Logout?";
-		    counter += 1;
+		    gui_states = Gui_states.LOGOUT;
 		    break;
-		case(8):
+		case LOGOUT:
 		    promptEcho = "Welcome to ACME! Please enter your Account ID.";
-		    counter = 0;
+		    gui_states = Gui_states.ACCOUNT_INPUT;
 		    ID = 0;
-		    pin = null;
+		    pin = "";
+		    model.write();
+		    break;
 		}
-		number = " ";
+		prompt.setText(promptEcho);
+		numbers.setText(number);
 		validate();
-	    } else if (e.getActionCommand.equals("Cancel")) {
-		switch(counter) {
-		case(1):
-		    counter = 0;
+	    } else if (e.getActionCommand().equals("Cancel")) {
+		switch(gui_states) {
+		case PIN_INPUT:
+		case ACCOUNT_INPUT:
+		    promptEcho = "Welcome to ACME! Please enter your account number.";
+		    gui_states = Gui_states.ACCOUNT_INPUT;
 		    break;
-		case(3):
-		    counter = 3;
+		case DEPOSIT:
+		    gui_states = Gui_states.DEPOSIT;
 		    break;
-		case(4):
-		    counter = 4;
+		case WITHDRAW_ATTEMPT:
+		    gui_states = Gui_states.WITHDRAW_ATTEMPT;
 		    break;
 		}
                 number = " ";
+		numbers.setText(number);
+		prompt.setText(promptEcho);
 		validate();
-	    } else if (e.getActionCommand.equals("Clear")) {
-		numbers = " ";
+	    } else if (e.getActionCommand().equals("Clear")) {
+		number = " ";
+		numbers.setText(number);
 		validate();
-	    } else if (e.getActionCommand.equals("Close")) {
+	    } else if (e.getActionCommand().equals("Close")) {
 		
 	    } else {
-		if (counter == 1) {
+		if (gui_states == Gui_states.PIN_INPUT) {
 		    number = numbers.getText() + "*";
 		    pin += e.getActionCommand();
-		} else if (counter != 3 && counter != 6) {
+		    numbers.setText(number);
+		} else if (gui_states != Gui_states.SUCCESSFUL_DEPOSIT && gui_states != Gui_states.WITHDRAW_FAILURE && gui_states != Gui_states.WITHDRAW_SUCCESS && gui_states != Gui_states.LOGOUT) {
 		    number = numbers.getText() + e.getActionCommand();
+		    numbers.setText(number);
 		}
 		validate();
 	    }
