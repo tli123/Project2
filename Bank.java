@@ -46,6 +46,8 @@ public class Bank extends Observable {
     private String filename;
     private String string_data;
 
+    private String currentStatus;
+
     public Bank(String filename) throws NegativeBalanceException, FileNotFoundException {
 	string_data = "";
 	accounts = new Hashtable<Integer, Account>();
@@ -222,6 +224,9 @@ public class Bank extends Observable {
 	    Account acc = e.nextElement();
 	    data += acc.formatReceipt() + "\n";
 	}
+	currentStatus = data;
+	setChanged();
+	notifyObservers();
 	return data;
     }
 
@@ -246,6 +251,10 @@ public class Bank extends Observable {
 
     public boolean pinVerify(int id, int pin) {
 	return accounts.get(id).getPin() == pin;
+    }
+
+    public String getCurrentStatus() {
+	return currentStatus;
     }
 
     public static void main(String[] args) throws NegativeBalanceException, FileNotFoundException, UnsupportedEncodingException {

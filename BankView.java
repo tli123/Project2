@@ -62,13 +62,14 @@ public class BankView extends JFrame implements Observer {
 	    if (e.getActionCommand().equals("Launch ATM")) {
 		ATMView atm = new ATMView(new ATM(model));
 	    } else if (e.getActionCommand().equals("Update")) {
-		///		accounts = model.getAccounts();
+	        model.toString();
 	    }
 	}
     }
 
     public void update(Observable o, Object t) {
-
+	bankInfo.setText(model.getCurrentStatus());
+	validate();
     }
 
 }
