@@ -6,31 +6,51 @@ in your assessment of each team member.  Your instructor will use this
 to help determine the individual grade for each person.
 The freeform comments evaluating yourself and your teammate are most important.
 
-Submitter: YOUR_OWN_NAME
+Submitter: Ziwei Ye
 
+Ziwei Ye
 Preparation:
-[ ] Well prepared	[ ] Somewhat prepared	[ ] Not prepared
+[X] Well prepared	[ ] Somewhat prepared	[ ] Not prepared
 
 Participation: how well did this person contribute to the team effort?
-[ ] Contributed well	[ ] Contributed little	[ ] Did not contribute
+[X] Contributed well	[ ] Contributed little	[ ] Did not contribute
 
 Additional comments:
+He is a backend guy.
 
-
-
-
-
-
----------------------------------------------------------------------------
-Team Member's Name: TEAM_MEMBER'S_NAME
-
+Tommy Li
 Preparation:
-[ ] Well prepared       [ ] Somewhat prepared   [ ] Not prepared
+[X] Well prepared	[ ] Somewhat prepared	[ ] Not prepared
 
 Participation: how well did this person contribute to the team effort?
-[ ] Contributed well    [ ] Contributed little  [ ] Did not contribute
+[X] Contributed well	[ ] Contributed little	[ ] Did not contribute
 
 Additional comments:
+He is a GUI guy.
 
 
+==========================================
+
+Submitter: Tommy Li
+
+Ziwei Ye
+Preparation:
+[X] Well prepared	[ ] Somewhat prepared	[ ] Not prepared
+
+Participation: how well did this person contribute to the team effort?
+[X] Contributed well	[ ] Contributed little	[ ] Did not contribute
+
+Additional comments:
+Worked on the Accounts and the Bank, and allowed for the models to work
+along with the guis when the bank was connected to the atm.
+
+Tommy Li
+Preparation:
+[X] Well prepared	[ ] Somewhat prepared	[ ] Not prepared
+
+Participation: how well did this person contribute to the team effort?
+[X] Contributed well	[ ] Contributed little	[ ] Did not contribute
+
+Additional comments:
+Worked on the GUI, mostly, as well as implementing the MVC with the GUI.
 

@@ -57,6 +57,7 @@ public class Bank extends Observable {
      */
     private String currentStatus;
 
+
     /**
      * Creates a bank object.
      * @param filename - The file that the bank is reading from.
@@ -73,20 +74,20 @@ public class Bank extends Observable {
 	while (sc.hasNextLine()) {
 	    String accountInfo = sc.nextLine();
 	    String[] accountData = accountInfo.split(" ");
-	    System.out.println(Arrays.toString(accountData));
+	    // System.out.println(Arrays.toString(accountData));
 	    int newId = Integer.parseInt(accountData[1]);
 	    int newPin = Integer.parseInt(accountData[2]);
 	    double newBal = Double.parseDouble(accountData[3]);
 	    
 	    Account acc = null;
 	    switch(accountData[0]) {
-	    case "x":
+	    case "c":
 		acc = new CDAccount(newId, newPin, newBal);
 		break;
 	    case "s":
 		acc = new SavingAccount(newId, newPin, newBal);	
 		break;
-	    case "c":
+	    case "x":
 		acc = new CheckingAccount(newId, newPin, newBal);
 		break;
 	    }
@@ -141,7 +142,7 @@ public class Bank extends Observable {
     }
 
     /**
-     * Runs batch mode.
+    * Runs batch mode.
      * @param filename - The file that the bank is reading from.
      * @exception NegativeBalanceException Thrown if the balance becomes
      *                                     negative.
@@ -364,6 +365,14 @@ public class Bank extends Observable {
 	    n++;
 	}
 	return status;
+    }
+
+    /**
+     * Updates the Bank GUI table.
+     */
+    public void updateTable() {
+	setChanged();
+	notifyObservers();
     }
 
     /**

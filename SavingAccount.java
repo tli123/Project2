@@ -32,13 +32,15 @@ public class SavingAccount extends Account {
 	super(account_id, pin, balance);
 	MIN_BALANCE = 200;
 	INTEREST_RATE = 0.005 / 12;
+	if(balance < MIN_BALANCE) setP(true);
     }
 
     /**
      * Calculates the penalty for the account. 
      * @return The penalty for the account.
      */
-    private double calcPenalty() {
+    @Override
+    public double calcPenalty() {
 	return getBalance() > 10 ? 10 : 0.1 * getBalance();
     }
 

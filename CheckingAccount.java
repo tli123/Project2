@@ -32,13 +32,15 @@ public class CheckingAccount extends Account {
 	super(account_id, pin, balance);
 	MIN_BALANCE = 50;
 	INTEREST_RATE = 0;
+	if(balance < MIN_BALANCE) setP(true);
     }
 
     /**
      * Calculates the penalty for the account. 
      * @return The penalty for the account.
      */
-    private double calcPenalty() {
+    @Override
+    public double calcPenalty() {
 	return getBalance() > 5 ? 5 : 0.1 * getBalance();
     }
 
@@ -55,7 +57,7 @@ public class CheckingAccount extends Account {
      * @return The string used in the file.
      */
     public String toString() {
-	return "c " + formatFile();
+	return "x " + formatFile();
     }
 
     /**

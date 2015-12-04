@@ -54,6 +54,8 @@ public class ATMView extends JFrame implements Observer {
      */
     private ATM model;
 
+    private int ATMid;
+
     /**
      * The constructor that will initialize the components.
      */
@@ -111,6 +113,8 @@ public class ATMView extends JFrame implements Observer {
 	otherButtons.add(button);
 	this.add(numberButtons);
 	this.add(otherButtons, BorderLayout.EAST);
+	String title = String.format("%06d", model.getATMID());
+	this.setTitle("Tommy Li: txl2747 | Ziwei Ye: zxy1677 | ATM ID#" + title);
 	this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	this.setLocation(100, 100);
 	this.setVisible(true);

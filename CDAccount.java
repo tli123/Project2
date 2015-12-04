@@ -37,6 +37,11 @@ public class CDAccount extends Account {
 	if (balance < MIN_BALANCE) throw new NegativeBalanceException();
     }
 
+    @Override
+    public double calcPenalty() {
+	return 0;
+    }
+
     /**
      * Withdraws money from the account.
      * @param amount - The amount to be withdrawn.
@@ -61,7 +66,7 @@ public class CDAccount extends Account {
      * @return The string used in the file.
      */
     public String toString() {
-	return "x " + formatFile();
+	return "c " + formatFile();
     }
 
     /**

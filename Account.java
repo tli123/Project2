@@ -19,7 +19,7 @@
  * @author Tommy Li
  */
 
-public class Account {
+public abstract class Account {
 
     /**
      * The minimum balance.
@@ -62,7 +62,6 @@ public class Account {
         this.account_id = account_id;
 	this.pin = pin;
 	this.balance = balance;
-	if(balance < MIN_BALANCE) penalty_p = true;
     }
 
     /**
@@ -87,6 +86,13 @@ public class Account {
      */
     public double getBalance() {
 	return balance;
+    }
+
+    /**
+     * Set penalty predicate.
+     */
+    public void setP(boolean a) {
+	penalty_p = a;
     }
 
     /**
@@ -116,9 +122,8 @@ public class Account {
      * Calculates the penalty for the account. Overriden in subclass. 
      * @return The penalty for the account.
      */
-    private double calcPenalty() {
-	return 0;
-    }
+
+    abstract double calcPenalty();
 
     /**
      * Applies the monthly interest or penalty on this account.
@@ -128,8 +133,9 @@ public class Account {
      */
     public synchronized double applyMonthly() throws NegativeBalanceException {
 	double total_extra = balance*INTEREST_RATE;
-	System.out.println(MIN_BALANCE);
-	if (penalty_p) total_extra += calcPenalty();
+	if (penalty_p) {
+	    total_extra += (-1 * calcPenalty());
+	}
 	modBalance(total_extra);
 	return total_extra;
     }

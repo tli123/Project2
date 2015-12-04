@@ -1,37 +1,68 @@
 Feedback on the 4003-243 Project 2: 
 
-Course: 	_________________
+Course: 	CSCI-140
 
-My name is: 	__________________
+My name is: 	Ziwei Ye
 
-My account is: 	__________________
+My account is: 	zxy1677
 
 What did you learn by doing this assignment?
 
-	<ANSWER_HERE>
-
+	I learned how to use the java GUI library to a good extent, including layout, 
+	different GUI objects and more.
 
 What was easy about this assignment?
-
-	<ANSWER_HERE>
-
+     	 Everything besides the GUI, MVC portion was fairly straightforward.
 
 What was harder than you originally thought?
 
-	<ANSWER_HERE>
-
+	The GUI was more of a pain than I thought. Getting the MVC framework to work as 
+	intended took longer amount of time than allocated.
 
 What can the instructor do to improve this assignment?
 
-	<ANSWER_HERE>
-
+	The documentation online was vague in some ways. Perhaps show a compiled 
+	finished product in class or online to clear up uncertainties.
 
 What would you have liked to do in this assignment?
+         Networking.
 
-	<ANSWER_HERE>
+What other issues would you like to discuss?
+     	LGBT issues.
+     	   
 
+==========================================================
+
+Course: 	CSCI-140
+
+My name is: 	Tommy Li
+
+My account is: 	txl2747
+
+What did you learn by doing this assignment?
+
+     	 I learned to fully utilize the MVC instead of stashing everything into the gui.
+
+What was easy about this assignment?
+     	 
+	 Laying out the GUI and the models were pretty easy.
+
+What was harder than you originally thought?
+
+	The states were the harder to implement than I anticipated. I needed more states than I
+	thought I needed.
+
+What can the instructor do to improve this assignment?
+
+     	 Be more concise with the instructions. The instructions were vague at points,
+	 and sometimes delayed our coding time because of our lack of understanding.
+
+What would you have liked to do in this assignment?
+ 
+	I would have liked to be a little fancier with the ATM in terms of buttons other
+	features, but project constraints prevented me from doing so.
 
 What other issues would you like to discuss?
 
-	<ANSWER_HERE>
-
+     	   There weren't any glaring issues that weren't mentioned before, but more introduction
+	   to MVC might have helped us understand the project better.
